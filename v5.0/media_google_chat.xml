@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>5.0</version>
+    <date>2023-08-27T04:47:56Z</date>
+    <media_types>
+        <media_type>
+            <name>Google Chat</name>
+            <type>WEBHOOK</type>
+            <parameters>
+                <parameter>
+                    <name>alert_message</name>
+                    <value>{ALERT.MESSAGE}</value>
+                </parameter>
+                <parameter>
+                    <name>alert_subject</name>
+                    <value>{ALERT.SUBJECT}</value>
+                </parameter>
+                <parameter>
+                    <name>event_date</name>
+                    <value>{EVENT.DATE}</value>
+                </parameter>
+                <parameter>
+                    <name>event_id</name>
+                    <value>{EVENT.ID}</value>
+                </parameter>
+                <parameter>
+                    <name>event_nseverity</name>
+                    <value>{EVENT.NSEVERITY}</value>
+                </parameter>
+                <parameter>
+                    <name>event_opdata</name>
+                    <value>{EVENT.OPDATA}</value>
+                </parameter>
+                <parameter>
+                    <name>event_recovery_date</name>
+                    <value>{EVENT.RECOVERY.DATE}</value>
+                </parameter>
+                <parameter>
+                    <name>event_recovery_time</name>
+                    <value>{EVENT.RECOVERY.TIME}</value>
+                </parameter>
+                <parameter>
+                    <name>event_severity</name>
+                    <value>{EVENT.SEVERITY}</value>
+                </parameter>
+                <parameter>
+                    <name>event_source</name>
+                    <value>{EVENT.SOURCE}</value>
+                </parameter>
+                <parameter>
+                    <name>event_status</name>
+                    <value>{EVENT.STATUS}</value>
+                </parameter>
+                <parameter>
+                    <name>event_tags</name>
+                    <value>{EVENT.TAGS}</value>
+                </parameter>
+                <parameter>
+                    <name>event_time</name>
+                    <value>{EVENT.TIME}</value>
+                </parameter>
+                <parameter>
+                    <name>event_update_action</name>
+                    <value>{EVENT.UPDATE.ACTION}</value>
+                </parameter>
+                <parameter>
+                    <name>event_update_date</name>
+                    <value>{EVENT.UPDATE.DATE}</value>
+                </parameter>
+                <parameter>
+                    <name>event_update_message</name>
+                    <value>{EVENT.UPDATE.MESSAGE}</value>
+                </parameter>
+                <parameter>
+                    <name>event_update_status</name>
+                    <value>{EVENT.UPDATE.STATUS}</value>
+                </parameter>
+                <parameter>
+                    <name>event_update_time</name>
+                    <value>{EVENT.UPDATE.TIME}</value>
+                </parameter>
+                <parameter>
+                    <name>event_update_user</name>
+                    <value>{USER.FULLNAME}</value>
+                </parameter>
+                <parameter>
+                    <name>event_value</name>
+                    <value>{EVENT.VALUE}</value>
+                </parameter>
+                <parameter>
+                    <name>google_endpoint</name>
+                    <value>&lt;PLACE WEBHOOK URL HERE&gt;</value>
+                </parameter>
+                <parameter>
+                    <name>host_ip</name>
+                    <value>{HOST.IP}</value>
+                </parameter>
+                <parameter>
+                    <name>host_name</name>
+                    <value>{HOST.NAME}</value>
+                </parameter>
+                <parameter>
+                    <name>http_to_https_redirect_service</name>
+                    <value>https://www.google.com/url?q=</value>
+                </parameter>
+                <parameter>
+                    <name>trigger_description</name>
+                    <value>{TRIGGER.DESCRIPTION}</value>
+                </parameter>
+                <parameter>
+                    <name>trigger_id</name>
+                    <value>{TRIGGER.ID}</value>
+                </parameter>
+                <parameter>
+                    <name>trigger_url</name>
+                    <value>{TRIGGER.URL}</value>
+                </parameter>
+                <parameter>
+                    <name>use_default_message</name>
+                    <value>false</value>
+                </parameter>
+                <parameter>
+                    <name>zabbix_url</name>
+                    <value>{$ZABBIX.URL}</value>
+                </parameter>
+            </parameters>
+            <script>var SEVERITY_COLORS = [&#13;
+    '#97AAB3', // Not classified.&#13;
+    '#7499FF', // Information.&#13;
+    '#FFC859', // Warning.&#13;
+    '#FFA059', // Average.&#13;
+    '#E97659', // High.&#13;
+    '#E45959', // Disaster.&#13;
+    '#009900', // Resolved.&#13;
+    '#000000', // Default.&#13;
+    '#2E9BF6'  // Update.&#13;
+];&#13;
+&#13;
+// Google Chat does not allow insecure URLs (http://).&#13;
+// If the URL is not secure, this function adds a URL as a prefix for secure redirection.&#13;
+function getHttpsUrl(url) {&#13;
+    if (params.http_to_https_redirect_service&#13;
+         &amp;&amp; params.http_to_https_redirect_service.startsWith('https:')&#13;
+         &amp;&amp; url.startsWith('http:')) {&#13;
+        url = params.http_to_https_redirect_service + encodeURIComponent(url);&#13;
+    }&#13;
+&#13;
+    return url;&#13;
+}&#13;
+&#13;
+try {&#13;
+    var params = JSON.parse(value);&#13;
+&#13;
+    if (typeof params.google_endpoint !== 'string' || params.google_endpoint.trim() === '') {&#13;
+        throw 'Cannot get google_endpoint';&#13;
+    }&#13;
+    else if (!params.google_endpoint.startsWith('http')) {&#13;
+        throw 'Invalid Google Chat webhook URL: ' + params.google_endpoint;&#13;
+    }&#13;
+&#13;
+    params.zabbix_url = (params.zabbix_url.endsWith('/'))&#13;
+        ? params.zabbix_url.slice(0, -1) : params.zabbix_url;&#13;
+&#13;
+    if ([0, 1, 2, 3].indexOf(parseInt(params.event_source)) === -1) {&#13;
+        throw 'Incorrect &quot;event_source&quot; parameter given: &quot;' + params.event_source + '&quot;.\nMust be 0-3.';&#13;
+    }&#13;
+&#13;
+    // Set &quot;use_default_message&quot; to true for non trigger-based events.&#13;
+    if (params.event_source !== '0') {&#13;
+        params.use_default_message = 'true';&#13;
+    }&#13;
+&#13;
+    // Check {EVENT.VALUE} for trigger-based and internal events.&#13;
+    if (params.event_value !== '0' &amp;&amp; params.event_value !== '1'&#13;
+            &amp;&amp; (params.event_source === '0' || params.event_source === '3')) {&#13;
+        throw 'Incorrect &quot;event_value&quot; parameter given: &quot;' + params.event_value + '&quot;.\nMust be 0 or 1.';&#13;
+    }&#13;
+&#13;
+    // Check {EVENT.UPDATE.STATUS} only for trigger-based events.&#13;
+    if (params.event_update_status !== '0' &amp;&amp; params.event_update_status !== '1' &amp;&amp; params.event_source === '0') {&#13;
+        throw 'Incorrect &quot;event_update_status&quot; parameter given: &quot;' + params.event_update_status + '&quot;.\nMust be 0 or 1.';&#13;
+    }&#13;
+&#13;
+    if (params.event_value == 0) {&#13;
+        params.event_nseverity = '6';&#13;
+    }&#13;
+&#13;
+    if (!SEVERITY_COLORS[params.event_nseverity]) {&#13;
+        params.event_nseverity = '7';&#13;
+    }&#13;
+&#13;
+    var request = new CurlHttpRequest(),&#13;
+        facts = [],&#13;
+        body = {&#13;
+          cardsV2: [&#13;
+            {&#13;
+              cardId: 'zabbix-event',&#13;
+              card: {&#13;
+                sections: [&#13;
+                  {&#13;
+                    header: '&lt;font color=&quot;' + SEVERITY_COLORS[params.event_nseverity] + '&quot;&gt;' + params.alert_subject.replace(/\*/g, '') + '&lt;/font&gt;',&#13;
+                    widgets: []&#13;
+                  },&#13;
+                  {&#13;
+                    widgets: [&#13;
+                      {&#13;
+                        buttonList: {&#13;
+                          buttons: [&#13;
+                            {&#13;
+                              text: (params.event_source === '0')&#13;
+                                  ? 'Event Info'&#13;
+                                  : 'Zabbix Home',&#13;
+                              onClick: {&#13;
+                                openLink: {&#13;
+                                  url: (params.event_source === '0')&#13;
+                                      ? getHttpsUrl(params.zabbix_url + '/tr_events.php?triggerid=' +&#13;
+                                          params.trigger_id + '&amp;eventid=' + params.event_id)&#13;
+                                      : getHttpsUrl(params.zabbix_url)&#13;
+                                }&#13;
+                              }&#13;
+                            }&#13;
+                        ]}&#13;
+                      }&#13;
+                    ]&#13;
+                  }&#13;
+                ]&#13;
+              }&#13;
+            }&#13;
+          ]&#13;
+        };&#13;
+&#13;
+    if (params.use_default_message.toLowerCase() !== 'true') {&#13;
+        // Problem message.&#13;
+        if (params.event_value === '1' &amp;&amp; params.event_update_status === '0') {&#13;
+            facts.push({ decoratedText: {&#13;
+                topLabel: 'Event time',&#13;
+                text: params.event_time + ' ' + params.event_date&#13;
+            }});&#13;
+            facts.push({ decoratedText: {&#13;
+                topLabel: 'Host',&#13;
+                text: params.host_name + ' [' + params.host_ip + ']'&#13;
+            }});&#13;
+        }&#13;
+        // Update message.&#13;
+        else if (params.event_update_status === '1') {&#13;
+            params.event_nseverity = '8';&#13;
+            body.cardsV2[0].card.sections[0].header += '&lt;br&gt;&lt;font color=&quot;' + SEVERITY_COLORS[params.event_nseverity] + '&quot;&gt;' + params.event_update_user + ' ' + params.event_update_action + '.';&#13;
+&#13;
+            if (params.event_update_message) {&#13;
+                body.cardsV2[0].card.sections[0].header += '&lt;br&gt;Message:&lt;br&gt;' + params.event_update_message + '&lt;/font&gt;';&#13;
+            }&#13;
+            facts.push({ decoratedText: {&#13;
+                topLabel: 'Event update time',&#13;
+                text: params.event_update_time + ' ' + params.event_update_date&#13;
+            }});&#13;
+            facts.push({ decoratedText: {&#13;
+                topLabel: 'Host',&#13;
+                text: params.host_name + ' [' + params.host_ip + ']'&#13;
+            }});&#13;
+        }&#13;
+        // Resolved message.&#13;
+        else {&#13;
+            facts.push({ decoratedText: {&#13;
+                topLabel: 'Recovery time',&#13;
+                text: params.event_recovery_time + ' ' + params.event_recovery_date&#13;
+            }});&#13;
+            facts.push({ decoratedText: {&#13;
+                topLabel: 'Host',&#13;
+                text: params.host_name + ' [' + params.host_ip + ']'&#13;
+            }});&#13;
+        }&#13;
+&#13;
+        if (params.event_severity &amp;&amp; params.event_severity !== '{EVENT.SEVERITY}') {&#13;
+            facts.push({ decoratedText: {&#13;
+                topLabel: 'Severity',&#13;
+                text: params.event_severity&#13;
+            }});&#13;
+        }&#13;
+&#13;
+        if (params.event_opdata &amp;&amp; params.event_opdata !== '{EVENT.OPDATA}') {&#13;
+            facts.push({ decoratedText: {&#13;
+                topLabel: 'Operational data',&#13;
+                text: params.event_opdata&#13;
+            }});&#13;
+        }&#13;
+&#13;
+        if (params.trigger_description &amp;&amp; params.trigger_description !== '{TRIGGER.DESCRIPTION}') {&#13;
+            facts.push({ decoratedText: {&#13;
+                topLabel: 'Trigger Description',&#13;
+                text: params.trigger_description&#13;
+            }});&#13;
+        }&#13;
+&#13;
+        if (params.event_tags &amp;&amp; params.event_tags !== '{EVENT.TAGS}') {&#13;
+            facts.push({ decoratedText: {&#13;
+                topLabel: 'Event tags',&#13;
+                text: params.event_tags&#13;
+            }});&#13;
+        }&#13;
+&#13;
+        if (params.trigger_url &amp;&amp; params.trigger_url.startsWith('http')) {&#13;
+            body.cardsV2[0].card.sections[1].widgets[0].buttonList.buttons.push({&#13;
+                text: 'Trigger URL',&#13;
+                onClick: {&#13;
+                    openLink:&#13;
+                      {&#13;
+                          url: getHttpsUrl(params.trigger_url)&#13;
+                      }&#13;
+                }&#13;
+            }); &#13;
+        }&#13;
+&#13;
+        Object.keys(params)&#13;
+            .forEach(function (key) {&#13;
+                if (key.startsWith('label_') &amp;&amp; params[key] !== '') {&#13;
+                    facts.push({ decoratedText: {&#13;
+                        topLabel: key.substring(6),&#13;
+                        text: params[key]&#13;
+                    }});&#13;
+                }&#13;
+                else if (key.startsWith('openUri_') &amp;&amp; params[key] !== '' &amp;&amp; !params[key].startsWith('{')) {&#13;
+                    body.cardsV2[0].card.sections[1].widgets[0].buttonList.buttons.push({&#13;
+                        text: key.substring(8),&#13;
+                        onClick: {&#13;
+                          openLink:&#13;
+                            {&#13;
+                                url: getHttpsUrl(params[key])&#13;
+                            }&#13;
+                        }&#13;
+                    });&#13;
+                }&#13;
+            });&#13;
+        body.cardsV2[0].card.sections[0].widgets = facts;&#13;
+&#13;
+        body.cardsV2[0].card.sections[0].header = body.cardsV2[0].card.sections[0].header.replace(/(?:\r\n|\r|\n)/g, '&lt;br&gt;');&#13;
+    }&#13;
+    else {&#13;
+        var body = { &quot;text&quot;: params.alert_subject + '\r\n' + params.alert_message };&#13;
+    }&#13;
+&#13;
+    request.AddHeader('Content-Type: application/json; charset=UTF-8');&#13;
+&#13;
+    if (typeof params.HTTPProxy === 'string' &amp;&amp; params.HTTPProxy !== '') {&#13;
+        request.SetProxy(params.HTTPProxy);&#13;
+    }&#13;
+&#13;
+    Zabbix.Log(4, '[ Google Chat Webhook ] JSON: ' + JSON.stringify(body));&#13;
+&#13;
+    var response = request.Post(params.google_endpoint, JSON.stringify(body));&#13;
+&#13;
+    Zabbix.Log(4, '[ Google Chat Webhook ] Response: ' + response);&#13;
+&#13;
+    if (request.Status() != 200) {&#13;
+        Zabbix.Log(4, '[ Google Chat Webhook ] FAILED with code ' + request.getStatus() + ', response: ' + response);&#13;
+        throw response;&#13;
+    }&#13;
+    else {&#13;
+        return 'OK';&#13;
+    }&#13;
+}&#13;
+catch (error) {&#13;
+    Zabbix.Log(3, '[ Google Chat Webhook ] ERROR: ' + error);&#13;
+    throw 'Sending failed: ' + error;&#13;
+}</script>
+            <message_templates>
+                <message_template>
+                    <event_source>TRIGGERS</event_source>
+                    <operation_mode>PROBLEM</operation_mode>
+                    <subject>*Problem: {EVENT.NAME}*</subject>
+                    <message>Problem started at `{EVENT.TIME}` on `{EVENT.DATE}`&#13;
+Problem name: `{EVENT.NAME}`&#13;
+Host: `{HOST.NAME}`&#13;
+Severity: `{EVENT.SEVERITY}`&#13;
+Operational data: `{EVENT.OPDATA}`&#13;
+Original problem ID: `{EVENT.ID}`&#13;
+{TRIGGER.URL}</message>
+                </message_template>
+                <message_template>
+                    <event_source>TRIGGERS</event_source>
+                    <operation_mode>RECOVERY</operation_mode>
+                    <subject>*Resolved: {EVENT.NAME}*</subject>
+                    <message>Problem has been resolved in `{EVENT.DURATION}` at `{EVENT.RECOVERY.TIME}` on `{EVENT.RECOVERY.DATE}`&#13;
+Problem name: `{EVENT.NAME}`&#13;
+Host: `{HOST.NAME}`&#13;
+Severity: `{EVENT.SEVERITY}`&#13;
+Original problem ID: `{EVENT.ID}`&#13;
+{TRIGGER.URL}</message>
+                </message_template>
+                <message_template>
+                    <event_source>TRIGGERS</event_source>
+                    <operation_mode>UPDATE</operation_mode>
+                    <subject>*Updated problem: {EVENT.NAME}*</subject>
+                    <message>`{USER.FULLNAME}` `{EVENT.UPDATE.ACTION}` problem at `{EVENT.UPDATE.DATE}` `{EVENT.UPDATE.TIME}`.&#13;
+{EVENT.UPDATE.MESSAGE}&#13;
+&#13;
+Current problem status is `{EVENT.STATUS}`, acknowledged: `{EVENT.ACK.STATUS}`.</message>
+                </message_template>
+                <message_template>
+                    <event_source>DISCOVERY</event_source>
+                    <operation_mode>PROBLEM</operation_mode>
+                    <subject>*Discovery: {DISCOVERY.DEVICE.STATUS} {DISCOVERY.DEVICE.IPADDRESS}*</subject>
+                    <message>Discovery rule: `{DISCOVERY.RULE.NAME}`&#13;
+&#13;
+Device IP: `{DISCOVERY.DEVICE.IPADDRESS}`&#13;
+Device DNS: `{DISCOVERY.DEVICE.DNS}`&#13;
+Device status: `{DISCOVERY.DEVICE.STATUS}`&#13;
+Device uptime: `{DISCOVERY.DEVICE.UPTIME}`&#13;
+&#13;
+Device service name: `{DISCOVERY.SERVICE.NAME}`&#13;
+Device service port: `{DISCOVERY.SERVICE.PORT}`&#13;
+Device service status: `{DISCOVERY.SERVICE.STATUS}`&#13;
+Device service uptime: `{DISCOVERY.SERVICE.UPTIME}`</message>
+                </message_template>
+                <message_template>
+                    <event_source>AUTOREGISTRATION</event_source>
+                    <operation_mode>PROBLEM</operation_mode>
+                    <subject>*Autoregistration: {HOST.HOST}*</subject>
+                    <message>Host name: `{HOST.HOST}`&#13;
+Host IP: `{HOST.IP}`&#13;
+Agent port: `{HOST.PORT}`</message>
+                </message_template>
+            </message_templates>
+        </media_type>
+    </media_types>
+</zabbix_export>
