@@ -6,7 +6,7 @@ This integration is supported only for **Chat** as part of Google Workspace. Not
 ## Setting up webhook in Google Chat
 Google Chat webhook only supports integrating with a single space.
 
-Because The icon for manage webhooks Manage webhooks is only available from a web browser, webhooks must be set up from the Chat web app. Webhooks are not configurable from the Chat mobile app.
+Because The icon for manage webhooks is only available from a web browser, webhooks must be set up from the Chat web app. Webhooks are not configurable from the Chat mobile app.
 
 First, you need to get a webhook URL for the space:
 
