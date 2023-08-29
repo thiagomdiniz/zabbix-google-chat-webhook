@@ -96,6 +96,10 @@ zabbix_export:
             else if (!params.google_endpoint.startsWith('http')) {
                 throw 'Invalid Google Chat webhook URL: ' + params.google_endpoint;
             }
+
+            if (!params.zabbix_url.startsWith('http')) {
+                throw 'Zabbix URL Macro is invalid or not defined: ' + params.zabbix_url;
+            }
         
             params.zabbix_url = (params.zabbix_url.endsWith('/'))
                 ? params.zabbix_url.slice(0, -1) : params.zabbix_url;
@@ -300,6 +304,7 @@ zabbix_export:
             Zabbix.log(3, '[ Google Chat Webhook ] ERROR: ' + error);
             throw 'Sending failed: ' + error;
         }
+      description: 'https://github.com/thiagomdiniz/zabbix-google-chat-webhook'
       message_templates:
         - event_source: TRIGGERS
           operation_mode: PROBLEM
