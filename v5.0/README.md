@@ -30,7 +30,7 @@ http://zabbix/<br>
 
 [<img src="images/1.png" width="300"/>](images/1.png)
 
-2\. In the *Administration > Media types* section, import the [media_google_chat.yaml](media_google_chat.yaml)
+2\. In the *Administration > Media types* section, import the [media_google_chat.xml](media_google_chat.xml)
 
 3\. Open the newly added **Google Chat** media type and replace placeholder *&lt;PLACE WEBHOOK URL HERE&gt;* with the **incoming webhook URL**, created during the webhook setup in Google Chat.
 
