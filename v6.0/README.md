@@ -55,7 +55,9 @@ Make sure this user has access to all hosts for which you would like problem not
 
 [<img src="images/4.png" width="300"/>](images/4.png)
 
-6\. Great! You can now start receiving alerts!
+6\. Now for Zabbix to send notifications, it is necessary to [configure an **Action**](https://www.zabbix.com/documentation/6.0/en/manual/config/notifications/action) that contains the operation of sending a message.
+
+7\. Great! You can now start receiving alerts!
 
 For more information see [Zabbix](https://www.zabbix.com/documentation/6.0/manual/config/notifications) and [Google Chat webhook](https://developers.google.com/chat/how-tos/webhooks) documentations.
 
