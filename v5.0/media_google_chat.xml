@@ -366,7 +366,8 @@ catch (error) {&#13;
     Zabbix.Log(3, '[ Google Chat Webhook ] ERROR: ' + error);&#13;
     throw 'Sending failed: ' + error;&#13;
 }</script>
-            <description>https://github.com/thiagomdiniz/zabbix-google-chat-webhook</description>
+            <description>v0.1.0 - Zabbix 5.0&#13;
+https://github.com/thiagomdiniz/zabbix-google-chat-webhook</description>
             <message_templates>
                 <message_template>
                     <event_source>TRIGGERS</event_source>

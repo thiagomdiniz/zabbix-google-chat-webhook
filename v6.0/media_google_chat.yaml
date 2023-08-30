@@ -305,7 +305,9 @@ zabbix_export:
             Zabbix.log(3, '[ Google Chat Webhook ] ERROR: ' + error);
             throw 'Sending failed: ' + error;
         }
-      description: 'https://github.com/thiagomdiniz/zabbix-google-chat-webhook'
+      description: |
+        v0.1.0 - Zabbix 6.0
+        https://github.com/thiagomdiniz/zabbix-google-chat-webhook
       message_templates:
         - event_source: TRIGGERS
           operation_mode: PROBLEM
