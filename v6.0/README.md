@@ -49,15 +49,24 @@ http://zabbix/<br>
 
 [<img src="images/3.png" width="300"/>](images/3.png)
 
-5\. To receive Zabbix notifications in Google Chat, you need to create a **Zabbix user** and add **Media** with the **Google Chat media type**.<br>
+5\. You can also choose to group messages by threads when sending them to Google Chat. Set *"group_messages_by_thread"* parameter:
+- **{EVENT.ID}** (default)
+    - Messages will be grouped by threads based on the Zabbix event ID.<br>
+    The first notification of a specific event will appear in Google Chat as a new thread and subsequent notifications for the same event will appear in Google Chat as replies to the initial message (grouped in the same thread).<br>
+    You can also use other macros to group messages in a different way, such as **{TRIGGER.ID}** (send notifications of a specific trigger always in the same thread).
+
+- **false**
+    - Messages will not be grouped by threads. Each notification will appear in Google Chat as a new thread.
+
+6\. To receive Zabbix notifications in Google Chat, you need to create a **Zabbix user** and add **Media** with the **Google Chat media type**.<br>
 In the *Administration → Users section*, click *Create user* button in the top right corner. In the *User* tab, fill in all required fields (marked with red asterisks). In the *Media* tab, add a new media and select **"Google Chat"** type from the drop-down list. Though a "*Send to*" field is not used in Google Chat media, it cannot be empty. To comply with the frontend requirements, you can put any symbol there.<br>
 Make sure this user has access to all hosts for which you would like problem notifications to be sent to Google Chat.<br>
 
 [<img src="images/4.png" width="300"/>](images/4.png)
 
-6\. Now for Zabbix to send notifications, it is necessary to [configure an **Action**](https://www.zabbix.com/documentation/6.0/en/manual/config/notifications/action) that contains the operation of sending a message.
+7\. Now for Zabbix to send notifications, it is necessary to [configure an **Action**](https://www.zabbix.com/documentation/6.0/en/manual/config/notifications/action) that contains the operation of sending a message.
 
-7\. Great! You can now start receiving alerts!
+8\. Great! You can now start receiving alerts!
 
 For more information see [Zabbix](https://www.zabbix.com/documentation/6.0/manual/config/notifications) and [Google Chat webhook](https://developers.google.com/chat/how-tos/webhooks) documentations.
 
