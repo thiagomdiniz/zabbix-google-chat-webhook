@@ -312,7 +312,7 @@ zabbix_export:
             throw 'Sending failed: ' + error;
         }
       description: |
-        v0.1.0 - Zabbix 7.0
+        v0.2.0 - Zabbix 7.0
         https://github.com/thiagomdiniz/zabbix-google-chat-webhook
       message_templates:
         - event_source: TRIGGERS
