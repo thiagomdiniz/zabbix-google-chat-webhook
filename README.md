@@ -67,3 +67,5 @@ Since I don't have a Google Workspace subscription, I'll probably need your supp
 ![service problem resolved](images/service-resolved.png)
 
 ### Messages grouped on the same thread
+
+![messages grouped by thread](images/card-message-grouped-thread.png)
