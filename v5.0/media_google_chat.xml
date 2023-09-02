@@ -92,6 +92,10 @@
                     <value>&lt;PLACE WEBHOOK URL HERE&gt;</value>
                 </parameter>
                 <parameter>
+                    <name>group_messages_by_thread</name>
+                    <value>{EVENT.ID}</value>
+                </parameter>
+                <parameter>
                     <name>host_ip</name>
                     <value>{HOST.IP}</value>
                 </parameter>
@@ -339,7 +343,12 @@ try {&#13;
         body.cardsV2[0].card.sections[0].header = body.cardsV2[0].card.sections[0].header.replace(/(?:\r\n|\r|\n)/g, '&lt;br&gt;');&#13;
     }&#13;
     else {&#13;
-        var body = { &quot;text&quot;: params.alert_subject + '\r\n' + params.alert_message };&#13;
+        body = { &quot;text&quot;: params.alert_subject + '\r\n' + params.alert_message };&#13;
+    }&#13;
+&#13;
+    if (params.group_messages_by_thread &amp;&amp; params.group_messages_by_thread.toLowerCase() !== 'false') {&#13;
+        body.thread = {"thread_key": params.event_id};&#13;
+        params.google_endpoint += '&amp;messageReplyOption=REPLY_MESSAGE_FALLBACK_TO_NEW_THREAD';&#13;
     }&#13;
 &#13;
     request.AddHeader('Content-Type: application/json; charset=UTF-8');&#13;
@@ -366,7 +375,7 @@ catch (error) {&#13;
     Zabbix.Log(3, '[ Google Chat Webhook ] ERROR: ' + error);&#13;
     throw 'Sending failed: ' + error;&#13;
 }</script>
-            <description>v0.1.0 - Zabbix 5.0&#13;
+            <description>v0.2.0 - Zabbix 5.0&#13;
 https://github.com/thiagomdiniz/zabbix-google-chat-webhook</description>
             <message_templates>
                 <message_template>

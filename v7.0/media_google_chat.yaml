@@ -50,6 +50,8 @@ zabbix_export:
           value: '{HOST.NAME}'
         - name: google_endpoint
           value: '<PLACE WEBHOOK URL HERE>'
+        - name: group_messages_by_thread
+          value: '{EVENT.ID}'
         - name: http_to_https_redirect_service
           value: 'https://www.google.com/url?q='
         - name: trigger_description
@@ -277,7 +279,12 @@ zabbix_export:
                 body.cardsV2[0].card.sections[0].header = body.cardsV2[0].card.sections[0].header.replace(/(?:\r\n|\r|\n)/g, '<br>');
             }
             else {
-                var body = { "text": params.alert_subject + '\r\n' + params.alert_message };
+                body = { "text": params.alert_subject + '\r\n' + params.alert_message };
+            }
+
+            if (params.group_messages_by_thread && params.group_messages_by_thread.toLowerCase() !== 'false') {
+                body.thread = {"thread_key": params.event_id};
+                params.google_endpoint += '&messageReplyOption=REPLY_MESSAGE_FALLBACK_TO_NEW_THREAD';
             }
         
             request.addHeader('Content-Type: application/json; charset=UTF-8');
@@ -305,7 +312,7 @@ zabbix_export:
             throw 'Sending failed: ' + error;
         }
       description: |
-        v0.1.0 - Zabbix 7.0
+        v0.2.0 - Zabbix 7.0
         https://github.com/thiagomdiniz/zabbix-google-chat-webhook
       message_templates:
         - event_source: TRIGGERS

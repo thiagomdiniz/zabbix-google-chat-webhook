@@ -21,6 +21,12 @@ To do so, change the value of the *"use_default_message"* parameter to **true** 
 
 ![text pop-up notification](images/text-popup-notification.png)
 
+## Group Messages by thread
+
+By default notification messages sent to Google Chat are grouped (same thread) by Zabbix event ID.
+
+If you prefer that each new notification message appears in Google Chat as a new message, change the value of the *group_messages_by_thread* parameter to **false** (details in each version's readme).
+
 ## Support notes
 
 To test the integration with Google Chat through webhooks, you must have a Google Workspace subscription.
@@ -59,3 +65,7 @@ Since I don't have a Google Workspace subscription, I'll probably need your supp
 ### Service resolved
 
 ![service problem resolved](images/service-resolved.png)
+
+### Messages grouped on the same thread
+
+![messages grouped by thread](images/card-message-grouped-thread.png)
