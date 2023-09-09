@@ -4,7 +4,6 @@ This guide describes how to integrate Zabbix 6.0 with Google Chat using the Zabb
 This integration is supported only for **Chat** as part of Google Workspace. Note, that **Chat** free plan does not support [incoming webhook](https://developers.google.com/chat/how-tos/webhooks#step_1_register_the_incoming_webhook) feature.
 
 ## Setting up webhook in Google Chat
-Google Chat webhook only supports integrating with a single space.
 
 Because The icon for manage webhooks is only available from a web browser, webhooks must be set up from the Chat web app. Webhooks are not configurable from the Chat mobile app.
 
@@ -32,7 +31,11 @@ http://zabbix/<br>
 
 2\. In the *Administration > Media types* section, import the [media_google_chat.yaml](media_google_chat.yaml)
 
-3\. Open the newly added **Google Chat** media type and replace placeholder *&lt;PLACE WEBHOOK URL HERE&gt;* with the **incoming webhook URL**, created during the webhook setup in Google Chat.
+3\. Open the newly added **Google Chat** media type and replace placeholder *&lt;PLACE WEBHOOK URL HERE&gt;* with:
+- The **incoming webhook URL**, created during the webhook setup in Google Chat.<br>
+This way, the Google Chat webhook will support integration with a **single Space**.
+- The macro **{ALERT.SENDTO}**.<br>
+This way, the Google Chat webhook will support integration with **multiple Spaces** by simply creating a Zabbix user for each Space.
 
 [<img src="images/2.png" width="300"/>](images/2.png)
 
@@ -59,7 +62,12 @@ http://zabbix/<br>
     - Messages will not be grouped by threads. Each notification will appear in Google Chat as a new thread.
 
 6\. To receive Zabbix notifications in Google Chat, you need to create a **Zabbix user** and add **Media** with the **Google Chat media type**.<br>
-In the *Administration → Users section*, click *Create user* button in the top right corner. In the *User* tab, fill in all required fields (marked with red asterisks). In the *Media* tab, add a new media and select **"Google Chat"** type from the drop-down list. Though a "*Send to*" field is not used in Google Chat media, it cannot be empty. To comply with the frontend requirements, you can put any symbol there.<br>
+In the *Administration → Users section*, click *Create user* button in the top right corner. In the *User* tab, fill in all required fields (marked with red asterisks). In the *Media* tab, add a new media and select **"Google Chat"** type from the drop-down list. The "*Send to*" field must be filled in according to the configuration made in *step 3*:
+- In step 3, the **incoming webhook URL** was used (*support single space*):
+    - Though a "*Send to*" field is not used in this case, it cannot be empty. To comply with the frontend requirements, you can put any symbol there.
+- In step 3, the **{ALERT.SENDTO}** macro was used (*support multiple spaces*):
+    - Enter the **incoming webhook URL** in the "*Send to*" field. If you need to send notifications to other spaces, simply follow this same procedure to create a new Zabbix user but use the **incoming webhook URL** of another space in the "*Send to*" field.
+
 Make sure this user has access to all hosts for which you would like problem notifications to be sent to Google Chat.<br>
 
 [<img src="images/4.png" width="300"/>](images/4.png)
