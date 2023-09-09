@@ -4,10 +4,26 @@ Receive notifications from your Zabbix in a Google Chat space (only available fo
 
 ## Zabbix version
 
+Choose according to the Zabbix version you use, but it is recommended that you read the information in the next sections of this README before proceeding.
+
 - [5.0](v5.0/)
 - [6.0](v6.0/)
 - [6.4](v6.4/)
 - [7.0](v7.0/)
+
+## Group Messages by thread
+
+By default notification messages sent to Google Chat are grouped (same thread) by Zabbix event ID.
+
+If you prefer that each new notification message appears in Google Chat as a new message, change the value of the *group_messages_by_thread* parameter to **false** (details in each version's readme).
+
+## Support Single or Multiple Space
+
+Google Chat webhook supports integration with a single space or multiple spaces, depending on the configuration performed (details in each version's readme).
+
+### Multiple Spaces - Security Note
+
+When configuring the Google Chat webhook in Zabbix with support for multiple spaces, the **incoming webhook URL** may be visible to some users in the details of problems in Zabbix frontend ([see this comment](https://github.com/thiagomdiniz/zabbix-google-chat-webhook/issues/1#issuecomment-1703705966)).
 
 ## Pop-Up Notifications
 
@@ -20,12 +36,6 @@ If it is important to you that the notification pop-up display details of the re
 To do so, change the value of the *"use_default_message"* parameter to **true** (details in each version's readme):
 
 ![text pop-up notification](images/text-popup-notification.png)
-
-## Group Messages by thread
-
-By default notification messages sent to Google Chat are grouped (same thread) by Zabbix event ID.
-
-If you prefer that each new notification message appears in Google Chat as a new message, change the value of the *group_messages_by_thread* parameter to **false** (details in each version's readme).
 
 ## Support notes
 
