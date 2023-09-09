@@ -33,6 +33,10 @@ If you prefer that each new notification message appears in Google Chat as a new
 
 Google Chat webhook supports integration with a single space or multiple spaces, depending on the configuration performed (details in each version's readme).
 
+### Multiple Spaces - Security Note
+
+When configuring the Google Chat webhook in Zabbix with support for multiple spaces, the **incoming webhook URL** may be visible to some users in the details of problems in Zabbix frontend ([see this comment](https://github.com/thiagomdiniz/zabbix-google-chat-webhook/issues/1#issuecomment-1703705966)).
+
 ## Support notes
 
 To test the integration with Google Chat through webhooks, you must have a Google Workspace subscription.
